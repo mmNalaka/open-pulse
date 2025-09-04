@@ -1,10 +1,13 @@
 /** biome-ignore-all lint/performance/noNamespaceImport: no treeshaking needed for schema */
+/** biome-ignore-all lint/suspicious/noExplicitAny: third party */
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { jwt, openAPI, organization } from 'better-auth/plugins';
+
 import { db } from '../db';
 import * as schema from '../db/schema/auth';
 
-export const auth = betterAuth({
+export const auth: any = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',
 
@@ -21,4 +24,5 @@ export const auth = betterAuth({
       httpOnly: true,
     },
   },
+  plugins: [openAPI(), jwt(), organization()],
 });

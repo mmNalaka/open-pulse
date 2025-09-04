@@ -2,9 +2,9 @@
   "name": "open-pulse",
   "private": true,
   "workspaces": [
-    "@app-docs",
-    "@app-web",
-    "@service-core"
+    "op-web-docs",
+    "op-web-site",
+    "op-service-core"
   ],
   "scripts": {
     "check": "biome check --write .",

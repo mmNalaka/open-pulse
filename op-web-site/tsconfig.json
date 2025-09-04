@@ -17,7 +17,7 @@
   },
   "references": [
     {
-      "path": "../@service-core"
+      "path": "../op-service-core"
     }
   ]
 }
