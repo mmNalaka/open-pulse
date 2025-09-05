@@ -2,10 +2,10 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: third party */
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { jwt, openAPI, organization } from 'better-auth/plugins';
+import { apiKey, jwt, openAPI, organization } from 'better-auth/plugins';
 
-import { db } from '../db';
-import * as schema from '../db/schema/auth';
+import { db } from '../db/postgres';
+import * as schema from '../db/postgres/postgres.schema';
 
 export const auth: any = betterAuth({
   database: drizzleAdapter(db, {
@@ -24,5 +24,5 @@ export const auth: any = betterAuth({
       httpOnly: true,
     },
   },
-  plugins: [openAPI(), jwt(), organization()],
+  plugins: [openAPI(), jwt(), organization(), apiKey()],
 });

@@ -1,5 +1,22 @@
-import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  integer,
+  json,
+  pgTable,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
+import { API_KEY_RATE_LIMIT_TIME_WINDOW } from '@/config/constants';
 
+export const ProjectStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+} as const;
+
+/**
+ * Auth Tables for Better Auth
+ * https://www.better-auth.com/docs/adapters/drizzle
+ */
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
@@ -101,4 +118,57 @@ export const invitation = pgTable('invitation', {
   inviterId: text('inviter_id')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
+});
+
+export const apikey = pgTable('apikey', {
+  id: text('id').primaryKey(),
+  name: text('name'),
+  start: text('start'),
+  prefix: text('prefix'),
+  key: text('key').notNull(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  refillInterval: integer('refill_interval'),
+  refillAmount: integer('refill_amount'),
+  lastRefillAt: timestamp('last_refill_at'),
+  enabled: boolean('enabled').default(true),
+  rateLimitEnabled: boolean('rate_limit_enabled').default(true),
+  rateLimitTimeWindow: integer('rate_limit_time_window').default(
+    API_KEY_RATE_LIMIT_TIME_WINDOW
+  ),
+  rateLimitMax: integer('rate_limit_max').default(10),
+  requestCount: integer('request_count').default(0),
+  remaining: integer('remaining'),
+  lastRequest: timestamp('last_request'),
+  expiresAt: timestamp('expires_at'),
+  createdAt: timestamp('created_at').notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+  permissions: text('permissions'),
+  metadata: text('metadata'),
+});
+
+/**
+ * Core business logic tables
+ */
+
+export const project = pgTable('project', {
+  projectId: text('project_id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').unique(),
+  domain: text('domain').unique(),
+  logo: text('logo'),
+  color: text('color'),
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organization.id, { onDelete: 'cascade' }),
+  createdBy: text('created_by')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  status: text('status').default(ProjectStatus.ACTIVE).notNull(),
+  createdAt: timestamp('created_at').notNull(),
+  updatedAt: timestamp('updated_at')
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  metadata: json('metadata'),
 });
